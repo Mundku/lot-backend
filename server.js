@@ -3,6 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import Campaign from './models/Campaign.js';
+import Winner from './models/Winner.js';
 
 // Routes
 import authRoutes from './routes/authRoutes.js';
@@ -15,21 +17,22 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'] }));
+// CORS - зөвхөн НЭГ удаа, зөв тохиргоотой
+app.use(cors({
+  origin: ['https://lot-frontend.vercel.app', 'http://localhost:5500'], // локал тестэд зориулав
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
 app.use(express.json());
 
-// Seed endpoint - demo өгөгдөл оруулах
-
+// Seed endpoint
 app.post('/api/seed', async (req, res) => {
   try {
-    const Campaign = mongoose.model('Campaign');
-    const Winner = mongoose.model('Winner');
-    
-    // Хуучин өгөгдлийг устгах
     await Campaign.deleteMany({});
     await Winner.deleteMany({});
-    
-    // Шинэ демо өгөгдөл оруулах
+
     await Campaign.insertMany([
       {
         id: "HOUSE",
@@ -65,23 +68,19 @@ app.post('/api/seed', async (req, res) => {
         end: "2026-12-31"
       }
     ]);
-    
+
     res.json({ ok: true, message: "Demo data seeded successfully!" });
   } catch (err) {
     console.error("Seed error:", err);
     res.status(500).json({ error: err.message });
-  }});
+  }
+});
 
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/winners', winnerRoutes);
 app.use('/api/orders', orderRoutes);
-app.use(cors({
-  origin: ['https://lot-frontend.vercel.app'], // Таны Vercel дээрх фронтенд хаяг
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  credentials: true
-}));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ ok: true }));
