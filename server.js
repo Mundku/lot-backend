@@ -19,10 +19,9 @@ const app = express();
 
 // CORS - зөвхөн НЭГ удаа, зөв тохиргоотой
 app.use(cors({
-  origin: ['https://lot-frontend.vercel.app', 'http://localhost:5500'], // локал тестэд зориулав
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  origin: '*',
+  methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 }));
 
 app.use(express.json());
