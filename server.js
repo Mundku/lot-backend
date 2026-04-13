@@ -18,6 +18,60 @@ const app = express();
 app.use(cors({ origin: '*', methods: ['GET','POST','PUT','DELETE','OPTIONS'] }));
 app.use(express.json());
 
+// Seed endpoint - demo өгөгдөл оруулах
+
+app.post('/api/seed', async (req, res) => {
+  try {
+    const Campaign = mongoose.model('Campaign');
+    const Winner = mongoose.model('Winner');
+    
+    // Хуучин өгөгдлийг устгах
+    await Campaign.deleteMany({});
+    await Winner.deleteMany({});
+    
+    // Шинэ демо өгөгдөл оруулах
+    await Campaign.insertMany([
+      {
+        id: "HOUSE",
+        title: "МӨРӨӨДЛИЙН БАЙШИН",
+        desc: "Мөрөөдлийн байшингаа хожоорой",
+        image: "",
+        status: "active",
+        price: 2000,
+        total: 25000,
+        sold: 0,
+        end: "2026-12-31"
+      },
+      {
+        id: "CAR",
+        title: "МАШИН",
+        desc: "Шинэ машин хожих боломж",
+        image: "",
+        status: "active",
+        price: 2000,
+        total: 10000,
+        sold: 0,
+        end: "2026-12-31"
+      },
+      {
+        id: "TRIP",
+        title: "ЕВРОП АЯЛАЛ",
+        desc: "Европ руу 2 хүний аялал",
+        image: "https://images.unsplash.com/photo-1519677100203-a0e668c92439",
+        status: "active",
+        price: 2000,
+        total: 15000,
+        sold: 0,
+        end: "2026-12-31"
+      }
+    ]);
+    
+    res.json({ ok: true, message: "Demo data seeded successfully!" });
+  } catch (err) {
+    console.error("Seed error:", err);
+    res.status(500).json({ error: err.message });
+  }});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
