@@ -1,24 +1,42 @@
-export const register = asyncHandler(async (req, res, next) => {
-  const { username, password } = req.body;
+import User from '../models/User.js';
+import generateToken from '../utils/generateToken.js';
+
+export const register = async (req, res) => {
   try {
+    const { username, password } = req.body;
     const userExists = await User.findOne({ username });
     if (userExists) {
-      res.status(400);
-      throw new Error('Бүртгэлтэй хэрэглэгч байна');
+      return res.status(400).json({ error: 'Бүртгэлтэй хэрэглэгч байна' });
     }
     const user = await User.create({ username, password });
-    if (user) {
-      res.status(201).json({
+    res.status(201).json({
+      _id: user._id,
+      username: user.username,
+      role: user.role,
+      token: generateToken(user._id)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Серверийн алдаа' });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (user && (await user.matchPassword(password))) {
+      res.json({
         _id: user._id,
         username: user.username,
         role: user.role,
         token: generateToken(user._id)
       });
     } else {
-      res.status(400);
-      throw new Error('Бүртгэл амжилтгүй');
+      res.status(401).json({ error: 'Нэвтрэх нэр эсвэл нууц үг буруу' });
     }
   } catch (err) {
-    next(err);
+    console.error(err);
+    res.status(500).json({ error: 'Серверийн алдаа' });
   }
-});
+};
