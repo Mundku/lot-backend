@@ -5,7 +5,7 @@ import { protect, adminOnly } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 router.route('/')
-  .get(getWinners)  // GET нь хамгаалалтгүй
+  .get(getWinners)  // Хүн бүр харж болно
   .post(protect, adminOnly, addWinner);
 
 router.delete('/:id', protect, adminOnly, deleteWinner);
