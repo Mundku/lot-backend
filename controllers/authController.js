@@ -4,7 +4,6 @@ import generateToken from '../utils/generateToken.js';
 
 export const login = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-
   const user = await User.findOne({ username });
   if (user && (await user.matchPassword(password))) {
     res.json({
@@ -14,20 +13,19 @@ export const login = asyncHandler(async (req, res) => {
       token: generateToken(user._id)
     });
   } else {
-    res.status(401).json({ error: 'Нэвтрэх нэр эсвэл нууц үг буруу' });
+    res.status(401);
+    throw new Error('Нэвтрэх нэр эсвэл нууц үг буруу');
   }
 });
 
 export const register = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
-
   const userExists = await User.findOne({ username });
   if (userExists) {
-    return res.status(400).json({ error: 'Бүртгэлтэй хэрэглэгч байна' });
+    res.status(400);
+    throw new Error('Бүртгэлтэй хэрэглэгч байна');
   }
-
   const user = await User.create({ username, password });
-
   if (user) {
     res.status(201).json({
       _id: user._id,
@@ -36,6 +34,7 @@ export const register = asyncHandler(async (req, res) => {
       token: generateToken(user._id)
     });
   } else {
-    res.status(400).json({ error: 'Бүртгэл амжилтгүй' });
+    res.status(400);
+    throw new Error('Бүртгэл амжилтгүй');
   }
 });
